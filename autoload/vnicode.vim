@@ -55,16 +55,38 @@ function s:on_event(job_id, data, event) dict abort
 	endif
 endfunction
 
-function! vnicode#show() abort
-	let currbuf = bufnr()
+function! vnicode#show(...) abort
+	let buf = bufnr('vnicode://UnicodeData.txt', 1)
+
+	" If no arguments given, use character code under the cursor.
+	if a:0 ==# 0
+		let charnr = char2nr(getline('.')[col('.') - 1:])
+	else
+		" Try parsing a hexadecimal number.
+		let num = matchstr(a:1, '\v^%([uU]\+?|[0\\][xX])\zs.*')
+		if !empty(num)
+			let charnr = str2nr(num, 16)
+		else
+			" Try parsing an octal number.
+			let num = matchstr(a:1, '\v^\\?0o?\zs.*')
+			if !empty(num)
+				let charnr = str2nr(num, 8)
+			else
+				let num = a:1
+				" Try parsing a decimal number.
+				let charnr = str2nr(num, 10)
+				" Try parsing a string.
+				if charnr ==# 0
+					let charnr = char2nr(matchstr(a:1, "\\v^(['\"])?\\zs.*\\ze\\1$"))
+				endif
+			endif
+		endif
+	endif
+
 	let view = winsaveview()
 
 	try
-		let ft = &filetype
-		let buf = bufnr('vnicode://UnicodeData.txt', 1)
-		let charnr = char2nr(getline('.')[col('.') - 1:])
-
-		execute buf.'buffer'
+		execute buf.'sbuffer'
 
 		let lnum = searchpos(printf('^%04X;', charnr), 'w')[0]
 		if lnum != 0
@@ -107,12 +129,8 @@ function! vnicode#show() abort
 		echohl VnicodeName
 		echon charname
 		echohl Number
-	catch
-		echom v:exception
-		call getchar()
-		normal! ga
 	finally
-		execute currbuf.'buffer'
+		close
 		call winrestview(view)
 	endtry
 endfunction

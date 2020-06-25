@@ -3,9 +3,10 @@ if !exists('vnicode_datadir')
 	let vnicode_datadir = fnamemodify(expand('<sfile>'), ':p:h:h').'/data'
 endif
 
-map <silent> <Plug>(Vnicode) :<C-u>call vnicode#show()<CR>
+" :ascii
+command! -nargs=? Unicode call vnicode#show(<f-args>)
 
-silent! nmap <silent><unique> ga <Plug>(Vnicode)
+silent! nmap <silent><unique> ga :<C-u>Unicode<CR>
 silent! inoremap <silent><unique> <C-v>/ <Esc>:<C-u>new vnicode://NamesList.txt<CR>:redraw<CR>:<C-u>call feedkeys('/\<', 'mt')<CR>
 
 augroup vnicode
