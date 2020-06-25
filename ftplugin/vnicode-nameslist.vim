@@ -53,16 +53,41 @@ function! s:show_toc() abort
 	lwindow
 endfunction
 
+" Go to previous group.
 nnoremap <silent><buffer> [[ :call search('\v^\@+\t', 'bW')<CR>
+nmap <silent><buffer> { [[
+" Go to next group.
 nnoremap <silent><buffer> ]] :call search('\v^\@+\t', 'W')<CR>
-nmap <silent><buffer> u :call search('\m^[^\t]', 'bW')<CR>
-nmap <silent><buffer> d :call search('\m^[^\t]', 'W')<CR>
+nmap <silent><buffer> } ]]
+" Up to next character.
+nnoremap <silent><buffer> ( :call search('\m^[^\t]', 'bW')<CR>
+" Down to next character.
+nnoremap <silent><buffer> ) :call search('\m^[^\t]', 'W')<CR>
+" Jump to character.
 nnoremap <silent><buffer> K :call search('\v<\x{4,}', 'c')<CR>K
-nmap <silent><buffer> . :call search('\m^[^\t]', 'bWc')<CR>
+" Move to character line.
+nmap <silent><buffer> < :call search('\m^[^\t]', 'bWc')<CR>
+" Close window.
 nnoremap <silent><buffer> q :close<CR>
-nmap <silent><buffer> + ."+yl
-nmap <silent><buffer> yy .yl<C-w>w
+" Copy character to register.
+nmap <silent><buffer> + <"+yl:echo 'Yanked to +:' @+<CR>
+nmap <silent><buffer> * <"*yl:echo 'Yanked to *:' @*<CR>
+" Put.
+nmap <silent><buffer> p <yl<C-w>wp<C-w>w
+" Put and go.
+nmap <silent><buffer> P <yl<C-w>wp
+" Append and edit.
+nmap <silent><buffer> A <yl<C-w>wpa
+nmap <silent><buffer> a A
+" Append and edit before.
+nmap <silent><buffer> I <yl<C-w>wpi
+nmap <silent><buffer> i I
+" Yank and go.
+nmap <silent><buffer> yy <yl<C-w>w
+nmap <silent><buffer> yc <$F<Tab>yb<C-w>w
+nmap <silent><buffer> yn <$T<Tab>y$<C-w>w
 nmap <silent><buffer> Y yy
-nmap <silent><buffer> yc $F<Tab>yb<C-w>w
-nmap <silent><buffer> <CR> .ylq
+" Go.
+nmap <silent><buffer> <Tab> <C-w>w
+" Show TOC.
 nmap <silent><buffer> gO :<C-u>call <SID>show_toc()<CR>
