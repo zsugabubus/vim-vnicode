@@ -7,7 +7,7 @@ endif
 normal! m'
 
 " Do not care about b:undo_ftplugin.
-setlocal nonumber norelativenumber nolist
+setlocal nonumber norelativenumber nolist tabstop=8
 
 " Jump to {codepoint}.
 command! -nargs=1 Codepoint call search('\V\t<args>\>', 'w')|normal! m'
@@ -23,6 +23,36 @@ if exists('g:no_plugin_maps')
 	finish
 endif
 
+" FIXME: TOC looks trash. Somebody tell me what those symbols mean.
+function! s:show_toc() abort
+	call cursor(1, 1)
+	let lnum = 1
+	let [head, sub] = [0, 0]
+	let loclist = []
+	let bufnr = bufnr()
+
+	while 1
+		call search('\v^\@+\t', 'W')
+		if line('.') ==# lnum
+			break
+		endif
+		let lnum = line('.')
+		let [_, ats, title; _] = matchlist(getline('.'), '\v^(\@+)\t*(.*)$')
+		if strlen(ats) ==# 1
+			let [head, sub] = [head + 1, 0]
+			let title = printf('%d. %s', head, title)
+		else
+			let sub += 1
+			let title = printf('%d.%d. %s', head, sub, title)
+		endif
+
+		call add(loclist, {'lnum': line('.'), 'bufnr': bufnr(), 'col': 0, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': 0, 'type': '', 'module': '', 'text': title})
+	endwhile
+
+	call setloclist(0, loclist)
+	lwindow
+endfunction
+
 nnoremap <silent><buffer> [[ :call search('\v^\@+\t', 'bW')<CR>
 nnoremap <silent><buffer> ]] :call search('\v^\@+\t', 'W')<CR>
 nmap <silent><buffer> u :call search('\m^[^\t]', 'bW')<CR>
@@ -35,3 +65,4 @@ nmap <silent><buffer> yy .yl<C-w>w
 nmap <silent><buffer> Y yy
 nmap <silent><buffer> yc $F<Tab>yb<C-w>w
 nmap <silent><buffer> <CR> .ylq
+nmap <silent><buffer> gO :<C-u>call <SID>show_toc()<CR>
