@@ -1,0 +1,26 @@
+*vnicode.txt*	Show Unicode character under the cursor.
+
+					Type |gO| to see the table of contents.
+
+==============================================================================
+INTRO							*vnicode-intro*
+
+This plugin shows Unicode character under the cursor (|ga|) and
+provides ability to search Unicode characters by their name and looking up
+miscalleous information using |i_CTRL-V_/|.
+
+The above mentioned keystrokes are overmapped only if they are unmapped.
+Alternatively, you can use |vnicode#show()| or open buffer
+|vnicode://NamesList.txt| for searching respectively.
+
+NOTE: Plugin downloads required files (currently UnicodeData.txt and NamesList.txt)
+on demand into "/path/to/plugin/data/".
+
+For more information please see source files as that’s the best documentation.
+
+==============================================================================
+LICENSE							*vnicode-license*
+
+Released under the GNU General Public License version v3.0 or later.
+
+ vim:tw=78:ts=8:noet:ft=help:norl:nowrap
