@@ -5,18 +5,32 @@
 ==============================================================================
 INTRO							*vnicode-intro*
 
-This plugin shows Unicode character under the cursor (|ga|) and
-provides ability to search Unicode characters by their name and looking up
-miscalleous information using |i_CTRL-V_/|.
+This plugin shows Unicode character under the cursor (|ga|) and provides
+ability to looking up miscalleous Unicode information using |gA|.
 
 The above mentioned keystrokes are overmapped only if they are unmapped.
-Alternatively, you can use |vnicode#show()| or open buffer
-|vnicode://NamesList.txt| for searching respectively.
+Alternatively, you can use |:Unicode| or open buffer
+|vnicode://NamesList.txt| and use |:Codepoint| for searching both for
+codepoint and character.
 
-NOTE: Plugin downloads required files (currently UnicodeData.txt and NamesList.txt)
-on demand into "/path/to/plugin/data/".
+NOTE: If user confirms, plugin downloads required files (currently
+UnicodeData.txt and NamesList.txt) on demand into "/path/to/plugin/data".
 
-For more information please see source files as that’s the best documentation.
+								*:Unicode*
+:Unicode [U[+]HEX | [0\]xHEX | [\]0[o]OCT | DEC | ['"] {character} ['"]]
+		Show information about specified Unicode codepoint in the
+		command-line. Default is one under the cursor.
+
+						*vnicode://NamesList.txt*
+Followings are specific to buffer |vnicode://NamesList.txt|.
+
+Various mappings provided for easy navigation and editing. See `:nmap <buffer>` for
+complete list.
+
+:Codepoint {{character} | {HEX}}				*:Codepoint*
+		Jump to the the specified character or codepoint.
+
+*:Codepoint* also used as 'keywordprg' so |K| can be used for quick jumping.
 
 ==============================================================================
 LICENSE							*vnicode-license*

@@ -6,8 +6,8 @@ endif
 " :ascii
 command! -nargs=? Unicode call vnicode#show(<f-args>)
 
-silent! nmap <silent><unique> ga :<C-u>Unicode<CR>
-silent! inoremap <silent><unique> <C-v>/ <Esc>:<C-u>new vnicode://NamesList.txt<CR>:redraw<CR>:<C-u>call feedkeys('/\<', 'mt')<CR>
+silent! nnoremap <silent><unique> ga :Unicode<CR>
+silent! nnoremap <expr><silent><unique> gA ':sbuffer '.bufnr('vnicode://NamesList.txt', 1).'<CR>:redraw<CR>:Codepoint<CR>'
 
 augroup vnicode
 	autocmd! BufReadCmd vnicode://*

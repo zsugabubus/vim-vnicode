@@ -9,8 +9,15 @@ normal! m'
 " Do not care about b:undo_ftplugin.
 setlocal nonumber norelativenumber nolist tabstop=8
 
-" Jump to {codepoint}.
-command! -nargs=1 Codepoint call search('\V\t<args>\>', 'w')|normal! m'
+function s:get_other_codepoint() abort
+	execute "normal! \<C-w>w"
+	let chr = nr2char(char2nr(getline('.')[col('.') - 1:]))
+	execute "normal! \<C-w>w"
+	return chr
+endfunction
+
+" Jump to {codepoint}. If empty, get character from other window.
+command! -buffer -nargs=* Codepoint call search(printf('\v(\t|^)\V%s\t', !empty(<q-args>) ? '\c'.<q-args> : '\C'.s:get_other_codepoint()), 'w')|normal! m'
 setlocal keywordprg=:Codepoint
 
 " TODO: Make it faster somehow.
@@ -76,6 +83,8 @@ nmap <silent><buffer> * <"*yl:echo 'Yanked to *:' @*<CR>
 nmap <silent><buffer> p <yl<C-w>wp<C-w>w
 " Put and go.
 nmap <silent><buffer> P <yl<C-w>wp
+" Replace.
+nmap <silent><buffer> r <<C-w>wx<C-w>wp
 " Append and edit.
 nmap <silent><buffer> A <yl<C-w>wpa
 nmap <silent><buffer> a A

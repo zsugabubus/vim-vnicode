@@ -63,12 +63,12 @@ function! vnicode#show(...) abort
 		let charnr = char2nr(getline('.')[col('.') - 1:])
 	else
 		" Try parsing a hexadecimal number.
-		let num = matchstr(a:1, '\v^%([uU]\+?|[0\\][xX])\zs.*')
+		let num = matchstr(a:1, '\v^%([uU]\+?|[0\\][xX])\zs\x+$')
 		if !empty(num)
 			let charnr = str2nr(num, 16)
 		else
 			" Try parsing an octal number.
-			let num = matchstr(a:1, '\v^\\?0o?\zs.*')
+			let num = matchstr(a:1, '\v^\\?0o?\zs\o+$')
 			if !empty(num)
 				let charnr = str2nr(num, 8)
 			else
