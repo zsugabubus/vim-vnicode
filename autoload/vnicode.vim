@@ -58,79 +58,102 @@ endfunction
 function! vnicode#show(...) abort
 	let buf = bufnr('vnicode://UnicodeData.txt', 1)
 
-	" If no arguments given, use character code under the cursor.
+	" If no arguments given, use the character under the cursor...
 	if a:0 ==# 0
-		let charnr = char2nr(getline('.')[col('.') - 1:])
+		let input = matchstr(getline('.')[col('.') - 1:], '.')
 	else
-		" Try parsing a hexadecimal number.
+		" ...or try parsing it as a hexadecimal number...
 		let num = matchstr(a:1, '\v^%([uU]\+?|[0\\][xX])\zs\x+$')
 		if !empty(num)
-			let charnr = str2nr(num, 16)
+			let input = str2nr(num, 16)
 		else
-			" Try parsing an octal number.
+			" ...or an octal number...
 			let num = matchstr(a:1, '\v^\\?0o?\zs\o+$')
 			if !empty(num)
-				let charnr = str2nr(num, 8)
+				let input = str2nr(num, 8)
 			else
 				let num = a:1
-				" Try parsing a decimal number.
-				let charnr = str2nr(num, 10)
-				" Try parsing a string.
-				if charnr ==# 0
-					let charnr = char2nr(matchstr(a:1, "\\v^(['\"])?\\zs.*\\ze\\1$"))
+				" ...or a decimal number...
+				let input = str2nr(num, 10)
+				if input ==# 0
+					" ...or treat the whole stuff as a string.
+					let input = matchstr(a:1, "\\v^(['\"])?\\zs.*\\ze\\1$")
 				endif
 			endif
 		endif
 	endif
 
-	let view = winsaveview()
+	" Convert input to a list of codepoints.
+	if type(input) ==# v:t_number
+		let input = [input]
+	elseif type(input) ==# v:t_string
+		let input = str2list(input)
+	endif
 
 	try
-		execute buf.'sbuffer'
+		" Open our UnicodeData.txt in the ``background''.
+		noautocmd tabnew
+		execute buf.'buffer'
 
-		let lnum = searchpos(printf('^%04X;', charnr), 'w')[0]
-		if lnum != 0
-			let chardata = split(getline(lnum), ';', 1)
-			let charname = chardata[1].(!empty(chardata[10]) ? '/'.chardata[10] : '')
-		else
-			let charname = ''
-		endif
+		" Now show every codepoint one-by-one.
+		while 1
+			let charnr = input[0]
+			let char = nr2char(charnr)
 
-		if charnr < char2nr(' ')
-			echohl SpecialKey
-			echon printf('<^%s> ', nr2char(charnr + char2nr('@')))
-		else
+			let lnum = searchpos(printf('^%04X;', charnr), 'w')[0]
+			if lnum != 0
+				let chardata = split(getline(lnum), ';', 1)
+				let charname = chardata[1].(!empty(chardata[10]) ? '/'.chardata[10] : '')
+			else
+				let charname = ''
+			endif
+
+			if charnr < char2nr(' ')
+				echohl SpecialKey
+				echon printf('<^%s> ', nr2char(charnr + char2nr('@')))
+			else
+				echohl Normal
+				" Show zerowidth characters on a "Dotted Circle"
+				let zerowidth = strwidth(char) ==# strwidth("\u25cc".char)
+				echon printf('<%s> ', (zerowidth ? "\u25cc" : '').char)
+			endif
+
+			" Decimal
+			echohl VnicodeNumber
+			echon printf('%3d', charnr)
 			echohl Normal
-			echon printf('<%s> ', nr2char(charnr))
-		endif
+			echon ', '
 
-		" Decimal
-		echohl VnicodeNumber
-		echon printf('%3d', charnr)
-		echohl Normal
-		echon ', '
+			" Hexadecimal
+			echohl VnicodeNumber
+			" Just because fucked syntax highlight.
+			echon printf('U+%0*X', float2nr(pow(2, ceil(log(log(charnr) / log(16))
+			\ / log(2)))), charnr)
+			echohl Normal
+			echon ', '
 
-		" Hexadecimal
-		echohl VnicodeNumber
-		" Just because fucked syntax highlight.
-		echon printf('U+%0*X', float2nr(pow(2, ceil(log(log(charnr) / log(16))
-		\ / log(2)))), charnr)
-		echohl Normal
-		echon ', '
+			" Octal
+			echohl cOctalZero
+			echon 0
+			echohl VnicodeNumber
+			echon printf('%o', charnr)
+			echohl Normal
+			echon ' '
 
-		" Octal
-		echohl cOctalZero
-		echon 0
-		echohl VnicodeNumber
-		echon printf('%o', charnr)
-		echohl Normal
-		echon '  '
+			echohl VnicodeName
+			echon charname
+			echohl Number
 
-		echohl VnicodeName
-		echon charname
-		echohl Number
+			echohl Normal
+
+			unlet input[0]
+			if empty(input)
+				break
+			endif
+
+			echon ', '
+		endwhile
 	finally
-		close
-		call winrestview(view)
+		tabclose
 	endtry
 endfunction
