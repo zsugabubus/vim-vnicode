@@ -92,8 +92,7 @@ function! vnicode#show(...) abort
 
 	try
 		" Open our UnicodeData.txt in the ``background''.
-		noautocmd tabnew
-		execute buf.'buffer'
+		execute printf('tab %dsbuffer', buf)
 
 		" Now show every codepoint one-by-one.
 		while 1
@@ -108,19 +107,22 @@ function! vnicode#show(...) abort
 				let charname = ''
 			endif
 
+			echohl Normal
+			echon printf('< ')
 			if charnr < char2nr(' ')
 				echohl SpecialKey
-				echon printf('<^%s> ', nr2char(charnr + char2nr('@')))
-			else
+				echon printf('^%s', nr2char(charnr + char2nr('@')))
 				echohl Normal
+			else
 				" Show zerowidth characters on a "Dotted Circle"
 				let zerowidth = strwidth(char) ==# strwidth("\u25cc".char)
-				echon printf('<%s> ', (zerowidth ? "\u25cc" : '').char)
+				echon printf('%s', (zerowidth ? "\u25cc" : '').char)
 			endif
+			echon printf(' >')
 
 			" Decimal
 			echohl VnicodeNumber
-			echon printf('%3d', charnr)
+			echon printf('%d', charnr)
 			echohl Normal
 			echon ', '
 
@@ -151,7 +153,7 @@ function! vnicode#show(...) abort
 				break
 			endif
 
-			echon ', '
+			echon ','
 		endwhile
 	finally
 		tabclose
