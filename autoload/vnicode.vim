@@ -56,8 +56,6 @@ function s:on_event(job_id, data, event) dict abort
 endfunction
 
 function! vnicode#show(...) abort
-	let buf = bufnr('vnicode://UnicodeData.txt', 1)
-
 	" If no arguments given, use the character under the cursor...
 	if a:0 ==# 0
 		let input = matchstr(getline('.')[col('.') - 1:], '.')
@@ -90,19 +88,31 @@ function! vnicode#show(...) abort
 		let input = str2list(input)
 	endif
 
+	let databuf = bufnr('vnicode://UnicodeData.txt', 1)
+	let aliasbuf = bufnr('vnicode://NameAliases.txt', 1)
+
 	try
 		" Open our UnicodeData.txt in the ``background''.
-		execute printf('tab %dsbuffer', buf)
+		execute 'tab' databuf.'sbuffer'
 
 		" Now show every codepoint one-by-one.
 		while 1
 			let charnr = input[0]
 			let char = nr2char(charnr)
+			let hexnr = printf('^%04X;', charnr)
 
-			let lnum = searchpos(printf('^%04X;', charnr), 'w')[0]
+			let lnum = searchpos(hexnr, 'wn')[0]
 			if lnum != 0
-				let chardata = split(getline(lnum), ';', 1)
-				let charname = chardata[1].(!empty(chardata[10]) ? '/'.chardata[10] : '')
+				" https://www.unicode.org/reports/tr44/#UnicodeData.txt
+				let charname = split(getline(lnum), ';', 1)[1]
+
+				execute aliasbuf.'buffer'
+				let lnum = searchpos(hexnr, 'wn')[0]
+				if lnum != 0
+					" Unconditionally use the first name.
+					let charname = split(getline(lnum), ';', 1)[1]
+				endif
+				execute databuf.'buffer'
 			else
 				let charname = ''
 			endif

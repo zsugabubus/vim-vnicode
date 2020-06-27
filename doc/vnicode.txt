@@ -13,8 +13,8 @@ Alternatively, you can use |:Unicode| or open buffer
 |vnicode://NamesList.txt| and use |:Codepoint| for searching both for
 codepoint and character.
 
-NOTE: If user confirms, plugin downloads required files (currently
-UnicodeData.txt and NamesList.txt) on demand into "/path/to/plugin/data".
+NOTE: If user confirms, plugin downloads required files on demand into
+"/path/to/plugin/data".
 
 								*:Unicode*
 :Unicode [U[+]HEX | [0\]xHEX | [\]0[o]OCT | DEC | ['"] {character} ['"]]
