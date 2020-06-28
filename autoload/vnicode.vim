@@ -60,21 +60,18 @@ function! vnicode#show(...) abort
 	if a:0 ==# 0
 		let input = matchstr(getline('.')[col('.') - 1:], '.')
 	else
-		" ...or try parsing it as a hexadecimal number...
-		let num = matchstr(a:1, '\v^%([uU]\+?|[0\\][xX])\zs\x+$')
+		let num = matchstr(a:1, '\v^\\?0o?\zs\o+$')
 		if !empty(num)
-			let input = str2nr(num, 16)
+			let input = str2nr(num, 8)
 		else
-			" ...or an octal number...
-			let num = matchstr(a:1, '\v^\\?0o?\zs\o+$')
+			let num = matchstr(a:1, '\v^\d+$')
 			if !empty(num)
-				let input = str2nr(num, 8)
-			else
-				let num = a:1
-				" ...or a decimal number...
 				let input = str2nr(num, 10)
-				if input ==# 0
-					" ...or treat the whole stuff as a string.
+			else
+				let num = matchstr(a:1, '\v^%([uU]\+?|[0\\][xX])?\zs\x+$')
+				if !empty(num)
+					let input = str2nr(num, 16)
+				else
 					let input = matchstr(a:1, "\\v^(['\"])?\\zs.*\\ze\\1$")
 				endif
 			endif
