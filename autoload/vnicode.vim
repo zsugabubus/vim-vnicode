@@ -89,6 +89,7 @@ function! vnicode#show(...) abort
 	let aliasbuf = bufnr('vnicode://NameAliases.txt', 1)
 
 	try
+		let tabnr = tabpagenr()
 		" Open our UnicodeData.txt in the ``background''.
 		execute 'tab' databuf.'sbuffer'
 
@@ -164,5 +165,6 @@ function! vnicode#show(...) abort
 		endwhile
 	finally
 		tabclose
+		execute tabnr.'tabnext'
 	endtry
 endfunction
