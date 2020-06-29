@@ -4,15 +4,15 @@ if !exists('vnicode_datadir')
 endif
 
 " :ascii
-command! -nargs=? Unicode call vnicode#show(<f-args>)
+command! -nargs=? Unicode call vnicode#ga(<f-args>)
+command! -nargs=? UTF8 call vnicode#g8(<f-args>)
 
 silent! nnoremap <silent><unique> ga :Unicode<CR>
+silent! nnoremap <silent><unique> g8 :UTF8<CR>
 silent! nnoremap <expr><silent><unique> gA ':sbuffer '.bufnr('vnicode://NamesList.txt', 1).'<CR>:redraw<CR>:Codepoint<CR>'
 
 augroup vnicode
-	autocmd! BufReadCmd vnicode://*
-	\ setlocal nobuflisted bufhidden=hide buftype=nofile noswapfile undolevels=-1|
-	\ call vnicode#_read_file(matchstr(expand('<afile>'), '\m://\zs.*'))
+	autocmd! BufReadCmd vnicode://* ++nested call vnicode#_read_file(matchstr(expand('<afile>'), '\m://\zs.*'))
 augroup END
 
 " Set up needed highlights.

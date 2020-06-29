@@ -1,88 +1,110 @@
 " Author: zsugabubus
 function! vnicode#_read_file(file) abort
 	let path = g:vnicode_datadir.'/'.a:file
-	if !filereadable(path)
-		try
-			echohl Question
-			" NOTE: getchar() cannot be used because echo does not show up for some
-			" reason.
-			let answer = input(printf('vnicode: %s is missing. Download now into %s?[Y/n] ', a:file, fnamemodify(g:vnicode_datadir, ':~')))
-		finally
-			echohl Normal
-		endtry
-		if answer =~? '\v^|y$'
-			call mkdir(g:vnicode_datadir, 'p')
-
-			let jobid = jobstart(['curl', '-sgLo', g:vnicode_datadir.'/'.a:file, 'https://www.unicode.org/Public/UCD/latest/ucd/'.a:file], {
-			\ 'file': a:file,
-			\ 'stderr_buffered': 1,
-			\	'on_stderr': function('s:on_event'),
-			\	'on_exit': function('s:on_event')
-			\})
-			if jobid ># 0
-				echo printf('Downloading %s...', a:file)
-			else
-				throw 'vnicode: failed to start download job'
-			endif
-			return
-		endif
-	endif
-	execute '0read' fnameescape(path)
-	setlocal readonly nomodifiable
-	filetype detect
+	try
+		setlocal nobuflisted bufhidden=hide buftype=nofile noswapfile undolevels=-1
+		execute '0read' fnameescape(glob(path.'*', 1, 1)[0])
+		setlocal readonly nomodifiable
+		filetype detect
+	catch
+		echohl Error
+		echom printf('vnicode: %s is missing. See :h vnicode-datafiles.', a:file)
+		echohl Normal
+	endtry
 endfunction
 
-function s:on_event(job_id, data, event) dict abort
-	if a:event ==# 'exit'
-		if a:data ==# 0
-			if self.file ==# 'UnicodeData.txt'
-				" Purge remains of previous data file.
-				silent! execute bufnr('vnicode://'.self.file) 'bwipeout'
-				call vnicode#show()
-			elseif self.file ==# 'NamesList.txt'
-				try
-					execute bufnr('vnicode://'.self.file) 'buffer'
-					call vnicode#_read_file(self.file)
-				catch
-					" Buffer has been deleted since.
-				endtry
-			endif
-		else
-			echoe printf('Download terminated with exit status %d', data)
-		endif
-	elseif a:event ==# 'stderr' && !empty(a:data[0])
-		echoe 'vnicode: '.join(a:data, '\n')
+function s:echochar(charnr) abort
+	let char = nr2char(a:charnr)
+
+	echohl Normal
+	echon printf('< ')
+	if a:charnr < char2nr(' ')
+		echohl SpecialKey
+		echon printf('^%s', nr2char(a:charnr + char2nr('@')))
+		echohl Normal
+	else
+		" Show zerowidth characters on a "Dotted Circle"
+		let zerowidth = strwidth(char) ==# strwidth("\u25cc".char)
+		echon printf('%s', (zerowidth ? "\u25cc" : '').char)
 	endif
+	echon printf(' >')
 endfunction
 
-function! vnicode#show(...) abort
+function s:args2charnrs(...) abort
 	" If no arguments given, use the character under the cursor...
 	if a:0 ==# 0
-		let input = matchstr(getline('.')[col('.') - 1:], '.')
+		let chars = matchstr(getline('.')[col('.') - 1:], '.')
 	else
 		let num = matchstr(a:1, '\v^\\?0o?\zs\o+$')
 		if !empty(num)
-			let input = str2nr(num, 8)
+			let chars = str2nr(num, 8)
 		else
 			let num = matchstr(a:1, '\v^\d+$')
 			if !empty(num)
-				let input = str2nr(num, 10)
+				let chars = str2nr(num, 10)
 			else
 				let num = matchstr(a:1, '\v^%([uU]\+?|[0\\][xX])?\zs\x+$')
 				if !empty(num)
-					let input = str2nr(num, 16)
+					let chars = str2nr(num, 16)
 				else
-					let input = matchstr(a:1, "\\v^(['\"])?\\zs.*\\ze\\1$")
+					let chars = matchstr(a:1, "\\v^(['\"])?\\zs.*\\ze\\1$")
 				endif
 			endif
 		endif
 	endif
 
-	" Convert input to a list of codepoints.
-	if type(input) ==# v:t_number
-		let input = [input]
-	elseif type(input) ==# v:t_string
-		let input = str2list(input)
+	" Get list of codepoints.
+	if type(chars) ==# v:t_number
+		let chars = [chars]
+	elseif type(chars) ==# v:t_string
+		let chars = str2list(chars)
+	endif
+
+	return chars
+endfunction
+
+function! vnicode#g8(...) abort
+	let chars = call('s:args2charnrs', a:000)
+
+	while !empty(chars)
+		let charnr = chars[0]
+
+		call s:echochar(charnr)
+
+		" Tail bytes.
+		let t2 = or(0x80, and(charnr / 64 / 64, 0x3f))
+		let t1 = or(0x80, and(charnr / 64, 0x3f))
+		let t0 = or(0x80, and(charnr, 0x3f))
+
+		echohl VnicodeNumber
+		if charnr <= 0x7f
+			echon printf('%02x ', charnr)
+		elseif charnr <= 0x07ff
+			let h = or(0xc0, charnr / 64)
+			echon printf('%02x %02x ', h, t0)
+		elseif charnr <= 0xffff
+			let h = or(0xe0, charnr / 16 / 64)
+			echon printf('%02x %02x %02x ', h, t1, t0)
+		elseif charnr <= 0x10ffff
+			let h = or(0xf0, charnr / 8 / 64 / 64)
+			echon printf('%02x %02x %02x ', h, t2, t1, t0)
+		else
+			echon printf('%08x ', charnr)
+		endif
+		echohl Normal
+
+		unlet chars[0]
+	endwhile
+endfunction
+
+function! vnicode#ga(...) abort
+	let chars = call('s:args2charnrs', a:000)
+
+	if empty(chars)
+		echohl NonText
+		echo '(nothing to show)'
+		echohl Normal
+		return
 	endif
 
 	let databuf = bufnr('vnicode://UnicodeData.txt', 1)
@@ -95,38 +117,28 @@ function! vnicode#show(...) abort
 
 		" Now show every codepoint one-by-one.
 		while 1
-			let charnr = input[0]
-			let char = nr2char(charnr)
+			let charnr = chars[0]
 			let hexnr = printf('^%04X;', charnr)
 
+			execute aliasbuf.'buffer'
 			let lnum = searchpos(hexnr, 'wn')[0]
 			if lnum != 0
-				" https://www.unicode.org/reports/tr44/#UnicodeData.txt
+				" Unconditionally use the first name.
 				let charname = split(getline(lnum), ';', 1)[1]
+			else
 
-				execute aliasbuf.'buffer'
+				execute databuf.'buffer'
 				let lnum = searchpos(hexnr, 'wn')[0]
 				if lnum != 0
-					" Unconditionally use the first name.
+					" https://www.unicode.org/reports/tr44/#UnicodeData.txt
 					let charname = split(getline(lnum), ';', 1)[1]
+				else
+					let charname = ''
 				endif
-				execute databuf.'buffer'
-			else
-				let charname = ''
+
 			endif
 
-			echohl Normal
-			echon printf('< ')
-			if charnr < char2nr(' ')
-				echohl SpecialKey
-				echon printf('^%s', nr2char(charnr + char2nr('@')))
-				echohl Normal
-			else
-				" Show zerowidth characters on a "Dotted Circle"
-				let zerowidth = strwidth(char) ==# strwidth("\u25cc".char)
-				echon printf('%s', (zerowidth ? "\u25cc" : '').char)
-			endif
-			echon printf(' >')
+			call s:echochar(charnr)
 
 			" Decimal
 			echohl VnicodeNumber
@@ -152,12 +164,10 @@ function! vnicode#show(...) abort
 
 			echohl VnicodeName
 			echon charname
-			echohl Number
-
 			echohl Normal
 
-			unlet input[0]
-			if empty(input)
+			unlet chars[0]
+			if empty(chars)
 				break
 			endif
 

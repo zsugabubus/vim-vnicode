@@ -96,6 +96,8 @@ nmap <silent><buffer> yy <yl<C-w>w
 nmap <silent><buffer> yc <$F<Tab>yb<C-w>w
 nmap <silent><buffer> yn <$T<Tab>y$<C-w>w
 nmap <silent><buffer> Y yy
+" Undo.
+nnoremap <buffer> u <C-w>wu<C-w>w
 " Go.
 nmap <silent><buffer> <Tab> <C-w>w
 " Show TOC.

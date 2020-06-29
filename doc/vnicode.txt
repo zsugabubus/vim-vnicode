@@ -5,21 +5,40 @@
 ==============================================================================
 INTRO							*vnicode-intro*
 
-This plugin shows Unicode character under the cursor (|ga|) and provides
-ability to looking up miscalleous Unicode information using |gA|.
+This plugin provides a bit more advanced |ga| with Unicode extension.
 
-The above mentioned keystrokes are overmapped only if they are unmapped.
-Alternatively, you can use |:Unicode| or open buffer
-|vnicode://NamesList.txt| and use |:Codepoint| for searching both for
-codepoint and character.
+==============================================================================
+							*vnicode-mappings*
+Following mappings are provided only if they are currently unmapped.
 
-NOTE: If user confirms, plugin downloads required files on demand into
-"/path/to/plugin/data".
+ga		Show character under the cursor just like |ga|.
+
+		When UnicodeData.txt or NameAliases.txt is available among
+		data files Unicode character names will also be shown.
+
+		See |:Unicode|.
+
+gA		Open |vnicode://NamesList.txt| then jump to the
+		character under the cursor.
+
+g8		Similar to |g8|.
+
+							*vnicode-datafiles*
+							*g:vnicode_datadir*
+Some features require Unicode data files to be present under the data
+directory, specified by |g:vnicode_datadir| (default: "/path/to/plugin/data").
+Plugin does not download these files automatically, only a generic Makefile is
+provided at the plugin root. If you want files to be compressed run "make
+gzip" after "make".
 
 								*:Unicode*
 :Unicode [U[+]HEX | [0\]xHEX | [\]0[o]OCT | DEC | ['"] {character} ['"]]
 		Show information about specified Unicode codepoint in the
 		command-line. Default is one under the cursor.
+
+								*:UTF8*
+:UTF8 [U[+]HEX | [0\]xHEX | [\]0[o]OCT | DEC | ['"] {character} ['"]]
+		Show an |g8| like information about specified codepoints.
 
 						*vnicode://NamesList.txt*
 Followings are specific to buffer |vnicode://NamesList.txt|.
@@ -27,8 +46,10 @@ Followings are specific to buffer |vnicode://NamesList.txt|.
 Various mappings provided for easy navigation and editing. See `:nmap <buffer>` for
 complete list.
 
-:Codepoint {{character} | {HEX}}				*:Codepoint*
-		Jump to the the specified character or codepoint.
+:Codepoint [{character} | {HEX}]				*:Codepoint*
+		Jump to the the specified character or codepoint. If no
+		arguments given move with |CTRL-w_w| and get codepoint under
+		the cursor.
 
 *:Codepoint* also used as 'keywordprg' so |K| can be used for quick jumping.
 
