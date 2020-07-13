@@ -83,11 +83,11 @@ function! vnicode#g8(...) abort
 			let h = or(0xc0, charnr / 64)
 			echon printf('%02x %02x ', h, t0)
 		elseif charnr <= 0xffff
-			let h = or(0xe0, charnr / 16 / 64)
+			let h = or(0xe0, charnr / 64 / 64)
 			echon printf('%02x %02x %02x ', h, t1, t0)
 		elseif charnr <= 0x10ffff
-			let h = or(0xf0, charnr / 8 / 64 / 64)
-			echon printf('%02x %02x %02x ', h, t2, t1, t0)
+			let h = or(0xf0, charnr / 64 / 64 / 64)
+			echon printf('%02x %02x %02x %02x ', h, t2, t1, t0)
 		else
 			echon printf('%08x ', charnr)
 		endif
