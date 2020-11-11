@@ -63,6 +63,10 @@ function s:args2charnrs(...) abort
 	return chars
 endfunction
 
+let s:G8_HEX_FORMAT = ['%02x ', '%02x %02x ', '%02x %02x %02x ', '%02x %02x %02x %02x ']
+let s:G8_DEC_FORMAT = ['%d', '%d %d', '%d %d %d', '%d %d %d %d']
+let s:G8_DEC_FILETYPES = ['lua']
+
 function! vnicode#g8(...) abort
 	let chars = call('s:args2charnrs', a:000)
 
@@ -77,17 +81,20 @@ function! vnicode#g8(...) abort
 		let t0 = or(0x80, and(charnr, 0x3f))
 
 		echohl VnicodeNumber
+
+		let format = 0 <=# index(s:G8_DEC_FILETYPES, &filetype) ? s:G8_DEC_FORMAT : s:G8_HEX_FORMAT
+
 		if charnr <= 0x7f
-			echon printf('%02x ', charnr)
+			echon printf(format[0], charnr)
 		elseif charnr <= 0x07ff
 			let h = or(0xc0, charnr / 64)
-			echon printf('%02x %02x ', h, t0)
+			echon printf(format[1], h, t0)
 		elseif charnr <= 0xffff
 			let h = or(0xe0, charnr / 64 / 64)
-			echon printf('%02x %02x %02x ', h, t1, t0)
+			echon printf(format[2], h, t1, t0)
 		elseif charnr <= 0x10ffff
 			let h = or(0xf0, charnr / 64 / 64 / 64)
-			echon printf('%02x %02x %02x %02x ', h, t2, t1, t0)
+			echon printf(format[3], h, t2, t1, t0)
 		else
 			echon printf('%08x ', charnr)
 		endif
