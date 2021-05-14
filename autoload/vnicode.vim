@@ -60,6 +60,8 @@ function! s:args2charnrs(...) abort
 		endif
 	endif
 
+	let chars = substitute(chars, '\v[ \n\t]{2,}', '', 'g')
+
 	" Get list of codepoints.
 	if type(chars) ==# v:t_number
 		let chars = [chars]
