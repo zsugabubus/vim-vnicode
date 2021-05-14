@@ -9,6 +9,10 @@ command! -nargs=? UTF8 call vnicode#g8(<f-args>)
 
 silent! nnoremap <silent><unique> ga :Unicode<CR>
 silent! nnoremap <silent><unique> g8 :UTF8<CR>
+if has('nvim')
+	silent! xnoremap <silent><unique> ga <Cmd>Unicode<CR>
+	silent! xnoremap <silent><unique> g8 <Cmd>UTF8<CR>
+endif
 silent! nnoremap <expr><silent><unique> gA ':sbuffer '.bufnr('vnicode://NamesList.txt', 1).'<CR>:redraw<CR>:Codepoint<CR>'
 
 augroup vnicode

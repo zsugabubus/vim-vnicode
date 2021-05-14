@@ -30,10 +30,17 @@ function s:echochar(charnr) abort
 	echon printf(' >')
 endfunction
 
-function s:args2charnrs(...) abort
+function! s:args2charnrs(...) abort
 	" If no arguments given, use the character under the cursor...
 	if a:0 ==# 0
-		let chars = matchstr(getline('.')[col('.') - 1:], '.')
+		if mode() ==# 'n'
+			let chars = matchstr(getline('.')[col('.') - 1:], '.')
+		else
+			let saved = @"
+			silent! normal! y
+			let chars = @"
+			let @" = saved
+		endif
 	else
 		let num = matchstr(a:1, '\v^\\?0o?\zs\o+$')
 		if !empty(num)
