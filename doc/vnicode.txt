@@ -23,6 +23,9 @@ gA		Open |vnicode://NamesList.txt| then jump to the
 
 g8		Similar to |g8|.
 
+		When a |v:register| other than '"' is provided, it is filled
+		with the |&filetype| dependent escape sequence.
+
 							*vnicode-datafiles*
 							*g:vnicode_datadir*
 Some features require Unicode data files to be present under the data

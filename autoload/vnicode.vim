@@ -13,7 +13,7 @@ function! vnicode#_read_file(file) abort
 	endtry
 endfunction
 
-function s:echochar(charnr) abort
+function! s:echochar(charnr) abort
 	let char = nr2char(a:charnr)
 
 	echohl Normal
@@ -72,45 +72,61 @@ function! s:args2charnrs(...) abort
 	return chars
 endfunction
 
-let s:G8_HEX_FORMAT = ['%02x ', '%02x %02x ', '%02x %02x %02x ', '%02x %02x %02x %02x ']
-let s:G8_DEC_FORMAT = ['%d', '%d %d', '%d %d %d', '%d %d %d %d']
-let s:G8_DEC_FILETYPES = ['lua']
+let s:G8_FORMAT = {
+	\  '': '%02x ',
+	\  'lua': '%d ',
+	\}
+
+let s:G8_REG_FORMAT = {
+	\  '': '\x%02x',
+	\  'lua': '\%d',
+	\}
 
 function! vnicode#g8(...) abort
 	let chars = call('s:args2charnrs', a:000)
+
+	let format = get(s:G8_FORMAT, &filetype, s:G8_FORMAT[''])
+
+	let reg = ''
+	let reg_format = v:register ==# '"' ? '' : get(s:G8_REG_FORMAT, &filetype, s:G8_REG_FORMAT[''])
 
 	while !empty(chars)
 		let charnr = chars[0]
 
 		call s:echochar(charnr)
 
-		" Tail bytes.
-		let t2 = or(0x80, and(charnr / 64 / 64, 0x3f))
-		let t1 = or(0x80, and(charnr / 64, 0x3f))
-		let t0 = or(0x80, and(charnr, 0x3f))
+		if charnr <= 0x7f
+			let bytes = [charnr]
+		else
+			let bytes = []
+			let head = 0x1f
+			while 1
+				let bytes += [or(0x80, and(charnr, 0x3f))]
+				let charnr /= 64
+				if charnr <= head
+					break
+				endif
+				let head /= 2
+			endwhile
+			let bytes += [or(xor(head * 2, 254), charnr)]
+		endif
+
+		call reverse(bytes)
+
+		if !empty(reg_format)
+			let reg .= len(bytes) ==# 1 ? nr2char(charnr) : call('printf', [repeat(reg_format, len(bytes))] + bytes)
+		endif
 
 		echohl VnicodeNumber
-
-		let format = 0 <=# index(s:G8_DEC_FILETYPES, &filetype) ? s:G8_DEC_FORMAT : s:G8_HEX_FORMAT
-
-		if charnr <= 0x7f
-			echon printf(format[0], charnr)
-		elseif charnr <= 0x07ff
-			let h = or(0xc0, charnr / 64)
-			echon printf(format[1], h, t0)
-		elseif charnr <= 0xffff
-			let h = or(0xe0, charnr / 64 / 64)
-			echon printf(format[2], h, t1, t0)
-		elseif charnr <= 0x10ffff
-			let h = or(0xf0, charnr / 64 / 64 / 64)
-			echon printf(format[3], h, t2, t1, t0)
-		else
-			echon printf('%08x ', charnr)
-		endif
+		echon call('printf', [repeat(format, len(bytes))] + bytes)
 		echohl Normal
 
 		unlet chars[0]
 	endwhile
+
+	if !empty(reg_format)
+		call setreg(v:register, reg)
+	endif
 endfunction
 
 function! vnicode#ga(...) abort
