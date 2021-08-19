@@ -41,6 +41,8 @@ function! s:args2charnrs(...) abort
 			let chars = @"
 			let @" = saved
 		endif
+
+		let chars = substitute(chars, '\v[ \n\t]{2,}', '', 'g')
 	else
 		let num = matchstr(a:1, '\v^\\?0o?\zs\o+$')
 		if !empty(num)
@@ -59,8 +61,6 @@ function! s:args2charnrs(...) abort
 			endif
 		endif
 	endif
-
-	let chars = substitute(chars, '\v[ \n\t]{2,}', '', 'g')
 
 	" Get list of codepoints.
 	if type(chars) ==# v:t_number
