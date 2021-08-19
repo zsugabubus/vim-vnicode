@@ -51,10 +51,10 @@ complete list.
 
 :Codepoint [{character} | {HEX}]				*:Codepoint*
 		Jump to the the specified character or codepoint. If no
-		arguments given move with |CTRL-w_w| and get codepoint under
+		arguments given, move with |CTRL-w_w| and get codepoint under
 		the cursor.
 
-*:Codepoint* also used as 'keywordprg' so |K| can be used for quick jumping.
+|:Codepoint| also used as 'keywordprg' so |K| can be used for quick jumping.
 
 ==============================================================================
 LICENSE							*vnicode-license*
