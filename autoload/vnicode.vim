@@ -1,4 +1,3 @@
-" Author: zsugabubus
 function! vnicode#_read_file(file) abort
 	let path = g:vnicode_datadir.'/'.a:file
 	try

@@ -1,4 +1,3 @@
-" Author: zsugabubus
 if get(b:, 'current_syntax', '') ==# 'vnicode-nameslist'
   finish
 endif

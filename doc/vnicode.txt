@@ -78,6 +78,13 @@ Various mappings provided for easy navigation and editing. See
 ==============================================================================
 LICENSE							*vnicode-license*
 
-Released under the GNU General Public License version v3.0 or later.
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+For more information, please refer to <http://unlicense.org/>
 
  vim:tw=78:ts=8:noet:ft=help:norl:nowrap

@@ -1,4 +1,3 @@
-" Author: zsugabubus
 if !exists('vnicode_datadir')
 	let vnicode_datadir = fnamemodify(expand('<sfile>'), ':p:h:h').'/data'
 endif

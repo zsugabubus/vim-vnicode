@@ -10,7 +10,3 @@ files. Run `make` then `make gzip` or `make xz` if you want to compress them.
 See `:h vnicode-datafiles` for more.
 
 Type <kbd>g</kbd><kbd>a</kbd>, <kbd>g</kbd><kbd>8</kbd>, <kbd>g</kbd><kbd>A</kbd>.
-
-## License
-
-Released under the GNU General Public License version v3.0 or later.
