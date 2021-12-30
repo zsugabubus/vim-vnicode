@@ -8,48 +8,67 @@ INTRO							*vnicode-intro*
 This plugin provides a bit more advanced |ga| with Unicode extension.
 
 ==============================================================================
+MAPPINGS
 							*vnicode-mappings*
 Following mappings are provided only if they are currently unmapped.
 
 ga		Show character under the cursor just like |ga|.
 
 		When UnicodeData.txt or NameAliases.txt is available among
-		data files Unicode character names will also be shown.
+		data files Unicode character names will also be shown. See
+		|vnicode-datafiles| for setup.
 
-		See |:Unicode|.
+		Uses |:Unicode| under the hood.
 
-gA		Open |vnicode://NamesList.txt| then jump to the
-		character under the cursor.
+gA		Open |vnicode://NamesList.txt| then jump to the character
+		under the cursor.
 
-g8		Similar to |g8|.
+["x]g8		Similar to |g8|.
 
-		When a |v:register| other than '"' is provided, it is filled
-		with the |&filetype| dependent escape sequence.
+		When used on a named register it is filled with |&filetype|
+		specific escape sequence.
 
+==============================================================================
+COMMANDS
+							*vnicode-commands*
+								*:Unicode*
+:Unicode |vnicode-CODEPOINTS|
+		Show Unicode information about specified codepoints.
+
+								*:UTF8*
+:UTF8 |vnicode-CODEPOINTS|
+		Show a |g8| like information about specified codepoints.
+
+							*vnicode-CODEPOINTS*
+Above commands can take codepoints in multiple formats.
+
+/* Take codepoint from under the cursor. */
+CODEPOINTS := /* epsilon */
+CODEPOINTS := [ "\" ] "0" [ "o" ] OCT
+CODEPOINTS := DEC
+CODEPOINTS := "U" [ "+" ] HEX
+CODEPOINTS := [ "0" | "\" ] "x" HEX
+CODEPOINTS := [ "'" | '"' ] [CHARACTER]... [ "'" | '"' ]
+
+==============================================================================
+DATA FILES
 							*vnicode-datafiles*
 							*g:vnicode_datadir*
 Some features require Unicode data files to be present under the data
-directory, specified by |g:vnicode_datadir| (default: "/path/to/plugin/data").
-Plugin does not download these files automatically, only a generic Makefile is
-provided at the plugin root. If you want files to be compressed run "make
-gzip" after "make".
+directory specified by |g:vnicode_datadir| (default: `/path/to/plugin/data`).
 
-								*:Unicode*
-:Unicode [U[+]HEX | [0\]xHEX | [\]0[o]OCT | DEC | ['"] {character} ['"]]
-		Show information about specified Unicode codepoint in the
-		command-line. Default is one under the cursor.
+Plugin does not download, neither update data files automatically.
 
-								*:UTF8*
-:UTF8 [U[+]HEX | [0\]xHEX | [\]0[o]OCT | DEC | ['"] {character} ['"]]
-		Show an |g8| like information about specified codepoints.
+To help ease the setup a Makefile is provided at the plugin source root that
+you can run with `make`. To compress files run `make gzip` after then.
 
 						*vnicode://NamesList.txt*
 Followings are specific to buffer |vnicode://NamesList.txt|.
 
-Various mappings provided for easy navigation and editing. See `:nmap <buffer>` for
-complete list.
+Various mappings provided for easy navigation and editing. See
+`:nmap <buffer>` for the complete list.
 
-:Codepoint [{character} | {HEX}]				*:Codepoint*
+:Codepoint [{CHARACTER} | {HEX}]				*:Codepoint*
 		Jump to the the specified character or codepoint. If no
 		arguments given, move with |CTRL-w_w| and get codepoint under
 		the cursor.
