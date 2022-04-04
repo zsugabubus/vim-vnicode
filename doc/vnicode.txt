@@ -31,13 +31,23 @@ gA		Open |vnicode://NamesList.txt| then jump to the character
 ==============================================================================
 COMMANDS
 							*vnicode-commands*
-								*:Unicode*
+							*:Unicode*
 :Unicode |vnicode-CODEPOINTS|
 		Show Unicode information about specified codepoints.
 
-								*:UTF8*
+							*:UTF8*
 :UTF8 |vnicode-CODEPOINTS|
 		Show a |g8| like information about specified codepoints.
+
+							*:VnicodeUpdate*
+:VnicodeUpdate [target]...
+		Run Makefile with specified arguments in the plugin source
+		root. Default [target] is "update" that updates (redownloads)
+		all data files.
+
+		NOTE: Plugin does not perform automatic updates; it have to be
+		done manually.
+
 
 							*vnicode-CODEPOINTS*
 Above commands can take codepoints in multiple formats.
@@ -57,10 +67,7 @@ DATA FILES
 Some features require Unicode data files to be present under the data
 directory specified by |g:vnicode_datadir| (default: `/path/to/plugin/data`).
 
-Plugin does not download, neither update data files automatically.
-
-To help ease the setup a Makefile is provided at the plugin source root that
-you can run with `make`. To compress files run `make gzip` after then.
+See |:VnicodeUpdate| for data file management.
 
 						*vnicode://NamesList.txt*
 Followings are specific to buffer |vnicode://NamesList.txt|.
@@ -68,7 +75,7 @@ Followings are specific to buffer |vnicode://NamesList.txt|.
 Various mappings provided for easy navigation and editing. See
 `:nmap <buffer>` for the complete list.
 
-:Codepoint [{CHARACTER} | {HEX}]				*:Codepoint*
+:Codepoint [{CHARACTER} | {HEX}]			*:Codepoint*
 		Jump to the the specified character or codepoint. If no
 		arguments given, move with |CTRL-w_w| and get codepoint under
 		the cursor.

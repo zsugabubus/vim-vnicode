@@ -1,5 +1,6 @@
+let s:vnicode_rootdir = fnamemodify(expand('<sfile>'), ':p:h:h')
 if !exists('vnicode_datadir')
-	let vnicode_datadir = fnamemodify(expand('<sfile>'), ':p:h:h').'/data'
+	let vnicode_datadir = s:vnicode_rootdir.'/data'
 endif
 
 " :ascii
@@ -13,6 +14,13 @@ if has('nvim')
 	silent! xnoremap <silent><unique> g8 <Cmd>UTF8<CR>
 endif
 silent! nnoremap <expr><silent><unique> gA ':sbuffer '.bufnr('vnicode://NamesList.txt', 1).'<CR>:redraw<CR>:Codepoint<CR>'
+
+command! -nargs=? VnicodeUpdate execute printf(
+	\  '!make -C %s datadir=%s %s',
+	\  shellescape(s:vnicode_rootdir),
+	\  shellescape(vnicode_datadir),
+	\  <q-args>
+	\)
 
 augroup vnicode
 	autocmd! BufReadCmd vnicode://* ++nested call vnicode#_read_file(matchstr(expand('<afile>'), '\m://\zs.*'))
