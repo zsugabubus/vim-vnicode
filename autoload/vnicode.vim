@@ -16,7 +16,7 @@ function! s:echochar(charnr) abort
 	let char = nr2char(a:charnr)
 
 	echohl Normal
-	echon printf('< ')
+	echon '< '
 	if a:charnr < char2nr(' ')
 		echohl SpecialKey
 		echon printf('^%s', nr2char(a:charnr + char2nr('@')))
@@ -24,9 +24,9 @@ function! s:echochar(charnr) abort
 	else
 		" Show zerowidth characters on a "Dotted Circle"
 		let zerowidth = strwidth(char) ==# strwidth("\u25cc".char)
-		echon printf('%s', (zerowidth ? "\u25cc" : '').char)
+		echon (zerowidth ? "\u25cc" : '').char
 	endif
-	echon printf(' >')
+	echon ' >'
 endfunction
 
 function! s:args2charnrs(...) abort
