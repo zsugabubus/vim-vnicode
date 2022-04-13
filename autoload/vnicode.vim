@@ -29,7 +29,7 @@ function! s:echochar(charnr) abort
 	echon ' >'
 endfunction
 
-function! s:args2charnrs(...) abort
+function! s:args2charnrs(for_display, ...) abort
 	" If no arguments given, use the character under the cursor...
 	if a:0 ==# 0
 		if mode() ==# 'n'
@@ -40,8 +40,6 @@ function! s:args2charnrs(...) abort
 			let chars = @"
 			let @" = saved
 		endif
-
-		let chars = substitute(chars, '\v[ \n\t]{2,}', '', 'g')
 	else
 		let num = matchstr(a:1, '\v^\\?0o?\zs\o+$')
 		if !empty(num)
@@ -68,6 +66,21 @@ function! s:args2charnrs(...) abort
 		let chars = str2list(chars)
 	endif
 
+	if a:for_display
+		" For some unknown reasons [ \t\n]{2,} matches combining characters after
+		" but "  +|..." is not. At the end, it seems better to operate on bytes so
+		" we can clean inputs coming from other sources too.
+		let prevbyte = 0
+		function! s:charfilter(at, byte) abort closure
+			if a:byte <# 0x80 && a:byte ==# prevbyte
+				return 0
+			endif
+			let prevbyte = a:byte
+			return 1
+		endfunction
+		call filter(chars, function('s:charfilter'))
+	endif
+
 	return chars
 endfunction
 
@@ -82,12 +95,14 @@ let s:G8_REG_FORMAT = {
 	\}
 
 function! vnicode#g8(...) abort
-	let chars = call('s:args2charnrs', a:000)
+	let reg = ''
+	let reg_format = v:register ==# '"'
+		\ ? ''
+		\ : get(s:G8_REG_FORMAT, &filetype, s:G8_REG_FORMAT[''])
+
+	let chars = call('s:args2charnrs', [empty(reg_format)] + a:000)
 
 	let format = get(s:G8_FORMAT, &filetype, s:G8_FORMAT[''])
-
-	let reg = ''
-	let reg_format = v:register ==# '"' ? '' : get(s:G8_REG_FORMAT, &filetype, s:G8_REG_FORMAT[''])
 
 	while !empty(chars)
 		let charnr = chars[0]
@@ -129,7 +144,7 @@ function! vnicode#g8(...) abort
 endfunction
 
 function! vnicode#ga(...) abort
-	let chars = call('s:args2charnrs', a:000)
+	let chars = call('s:args2charnrs', [1] + a:000)
 
 	if empty(chars)
 		echohl NonText
