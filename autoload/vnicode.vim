@@ -72,7 +72,7 @@ function! s:args2charnrs(for_display, ...) abort
 		" we can clean inputs coming from other sources too.
 		let prevbyte = 0
 		function! s:charfilter(at, byte) abort closure
-			if a:byte <# 0x80 && a:byte ==# prevbyte
+			if a:byte ==# prevbyte
 				return 0
 			endif
 			let prevbyte = a:byte
