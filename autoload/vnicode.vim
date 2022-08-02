@@ -70,12 +70,12 @@ function! s:args2charnrs(for_display, ...) abort
 		" For some unknown reasons [ \t\n]{2,} matches combining characters after
 		" but "  +|..." is not. At the end, it seems better to operate on bytes so
 		" we can clean inputs coming from other sources too.
-		let prevbyte = 0
-		function! s:charfilter(at, byte) abort closure
-			if a:byte ==# prevbyte
+		let prev_char = 0
+		function! s:charfilter(i, char) abort closure
+			if a:char ==# prev_char
 				return 0
 			endif
-			let prevbyte = a:byte
+			let prev_char = a:char
 			return 1
 		endfunction
 		call filter(chars, function('s:charfilter'))
