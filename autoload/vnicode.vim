@@ -2,7 +2,7 @@ function! vnicode#_read_file(file) abort
 	let path = g:vnicode_datadir.'/'.a:file
 	try
 		setlocal nobuflisted bufhidden=hide buftype=nofile noswapfile undolevels=-1
-		execute '0read' fnameescape(glob(path.'*', 1, 1)[0])
+		silent execute '0read' fnameescape(glob(path.'*', 1, 1)[0])
 		setlocal readonly nomodifiable
 		filetype detect
 	catch
