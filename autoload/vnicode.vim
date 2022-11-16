@@ -235,6 +235,26 @@ function! vnicode#ga(...) abort
 			echohl VnicodeName
 			echon character_name
 			echohl Normal
+
+			if len(codepoints) == 1
+				let decomposition = get(unicode_data, 5, '')
+
+				if !empty(decomposition)
+					let [_, tag, mapping; _] = matchlist(decomposition, '\v(\<.*\>)?(.*)')
+					echohl Normal
+					echon ' ' . tag . '('
+					let plus = 0
+					for code in split(mapping, ' ')
+						if plus
+							echon '+'
+						endif
+						let plus = 1
+						call vnicode#ga('U' . code)
+					endfor
+					echohl Normal
+					echon ')'
+				endif
+			endif
 		endfor
 	finally
 		tabclose
