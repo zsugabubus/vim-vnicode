@@ -34,3 +34,4 @@ hi def link VnicodeSection Title
 hi def link VnicodeNumber Number
 hi def link VnicodeName Identifier
 hi def link VnicodeNameAlias Normal
+hi def link VnicodeGeneralCategory Normal
