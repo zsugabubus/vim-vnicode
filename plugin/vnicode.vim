@@ -1,3 +1,8 @@
+if exists('loaded_vnicode')
+	finish
+endif
+let loaded_vnicode = 1
+
 let s:vnicode_rootdir = fnamemodify(expand('<sfile>'), ':p:h:h')
 if !exists('vnicode_datadir')
 	let vnicode_datadir = s:vnicode_rootdir.'/data'
