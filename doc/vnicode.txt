@@ -7,6 +7,8 @@ INTRO							*vnicode-intro*
 
 This plugin provides a bit more advanced |ga| with Unicode extension.
 
+After installation, you may want to populate data files with |:VnicodeUpdate|.
+
 ==============================================================================
 MAPPINGS
 							*vnicode-mappings*
@@ -41,9 +43,9 @@ COMMANDS
 
 							*:VnicodeUpdate*
 :VnicodeUpdate [target]...
-		Run Makefile with specified arguments in the plugin source
-		root. Default [target] is "update" that updates (redownloads)
-		all data files.
+		Run Makefile (at the plugin source root) with the specified
+		arguments. Default target is "update" that updates
+		(redownloads) all required data files.
 
 		NOTE: Plugin does not perform automatic updates; it have to be
 		done manually.
@@ -67,7 +69,11 @@ DATA FILES
 Some features require Unicode data files to be present under the data
 directory specified by |g:vnicode_datadir| (default: `/path/to/plugin/data`).
 
-See |:VnicodeUpdate| for data file management.
+These data files can be populated manually or can be managed in a more
+convenient way using |:VnicodeUpdate|.
+
+							*vnicode://*
+|vnicode://|{PATH} reads file at |g:vnicode_datadir|/{PATH}.
 
 						*vnicode://NamesList.txt*
 Followings are specific to buffer |vnicode://NamesList.txt|.
